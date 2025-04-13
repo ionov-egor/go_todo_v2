@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/ionov-egor/go_todo_v2/pkg/db"
 	"net/http"
+	"time"
 )
 
 func TasksHandler(w http.ResponseWriter, r *http.Request) {
@@ -12,8 +13,26 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+const rowLimit = 10
+
 func getTasksHandler(w http.ResponseWriter, r *http.Request) {
-	tasks, err := db.Tasks(10) // в параметре максимальное количество записей
+	search := r.FormValue(paramSearch)
+
+	var tasks = []*db.Task{}
+	var err error
+
+	switch search {
+	case "":
+		tasks, err = db.Tasks(rowLimit)
+
+	default:
+		parsedDate, err := time.Parse("02.01.2006", search)
+		if err == nil {
+			tasks, err = db.TasksByDate(rowLimit, parsedDate.Format("20060102"))
+		} else {
+			tasks, err = db.TasksBySearch(rowLimit, search)
+		}
+	}
 
 	if err != nil {
 		HandleError(w, r, http.StatusInternalServerError, err.Error())

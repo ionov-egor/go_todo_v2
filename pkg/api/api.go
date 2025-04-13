@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/ionov-egor/go_todo_v2/pkg/db"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -14,6 +15,7 @@ const (
 	paramDate   = "date"
 	paramRepeat = "repeat"
 	paramId     = "id"
+	paramSearch = "search"
 )
 
 type ErrorResponse struct {
@@ -39,28 +41,53 @@ func HandleError(w http.ResponseWriter, r *http.Request, status int, message str
 }
 
 func WriteJson(w http.ResponseWriter, r *http.Request, status int, data any) {
-	dataJSON, err := json.Marshal(data)
-	if err != nil {
-		HandleError(w, r, http.StatusInternalServerError, err.Error())
-		return
+	var dataJSON []byte
+	var err error
+
+	if data != "{}" {
+		dataJSON, err = json.Marshal(data)
+		if err != nil {
+			HandleError(w, r, http.StatusInternalServerError, err.Error())
+			return
+		}
+	} else {
+		dataJSON = []byte(`{}`)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	w.Write(dataJSON)
+	if _, err := w.Write(dataJSON); err != nil {
+		HandleError(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
 }
 
-func сheckTitle(title string) error {
-	err := сheckTitle4empty(title)
+func checkTitle(title string) error {
+	err := checkTitle4empty(title)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func сheckTitle4empty(title string) error {
+func checkTitle4empty(title string) error {
 	if strings.TrimSpace(title) == "" {
 		return errors.New("строка пустая или содержит только пробелы")
 	}
 	return nil
+}
+
+func getParamId(r *http.Request) (int, error) {
+	id := r.FormValue(paramId)
+
+	idNum, err := strconv.Atoi(id)
+	if err != nil {
+		return 0, err
+	}
+
+	if idNum == 0 {
+		return 0, err
+	}
+
+	return idNum, nil
 }

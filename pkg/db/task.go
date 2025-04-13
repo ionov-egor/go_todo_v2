@@ -71,6 +71,68 @@ func Tasks(limit int) ([]*Task, error) {
 	return tasks, nil
 }
 
+func TasksBySearch(limit int, search string) ([]*Task, error) {
+	var tasks = []*Task{}
+
+	rows, err := GetDB().Query("SELECT id, date, title, comment, repeat FROM scheduler WHERE title LIKE CONCAT('%', :search, '%')  OR comment LIKE CONCAT('%', :search, '%')  ORDER BY date DESC LIMIT :limit ",
+		sql.Named("search", search),
+		sql.Named("limit", limit))
+
+	if err != nil {
+		return tasks, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		task := Task{}
+
+		err := rows.Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
+		if err != nil {
+			return tasks, err
+		}
+
+		tasks = append(tasks, &task)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return tasks, err
+	}
+
+	return tasks, nil
+}
+
+func TasksByDate(limit int, date string) ([]*Task, error) {
+	var tasks = []*Task{}
+
+	rows, err := GetDB().Query("SELECT id, date, title, comment, repeat FROM scheduler WHERE date = :date LIMIT :limit",
+		sql.Named("date", date),
+		sql.Named("limit", limit))
+
+	if err != nil {
+		return tasks, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		task := Task{}
+
+		err := rows.Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
+		if err != nil {
+			return tasks, err
+		}
+
+		tasks = append(tasks, &task)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return tasks, err
+	}
+
+	return tasks, nil
+}
+
 func UpdateTask(task *Task) error {
 	query := `UPDATE scheduler SET date = :date, title = :title, comment = :comment, repeat = :repeat WHERE id = :id`
 	res, err := GetDB().Exec(query,
@@ -92,4 +154,33 @@ func UpdateTask(task *Task) error {
 	}
 
 	return nil
+}
+
+func DeleteTask(id int) error {
+	if _, err := GetDB().Exec("DELETE FROM scheduler WHERE id = :id", sql.Named("id", id)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateDate(next string, id int) error {
+	query := `UPDATE scheduler SET date = :date WHERE id = :id`
+	res, err := GetDB().Exec(query,
+		sql.Named("date", next),
+		sql.Named("id", id))
+	if err != nil {
+		return err
+	}
+
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return fmt.Errorf(`incorrect id for updating task`)
+	}
+
+	return nil
+
 }
