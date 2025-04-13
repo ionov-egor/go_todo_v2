@@ -3,15 +3,14 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	_ "modernc.org/sqlite"
 	"os"
 	"path/filepath"
-
-	_ "modernc.org/sqlite"
 )
 
 const schema = `
 CREATE TABLE scheduler (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     date CHAR(8) NOT NULL DEFAULT '',
     title VARCHAR(255) NOT NULL,
     repeat VARCHAR(50),
@@ -24,7 +23,6 @@ CREATE INDEX idx_date ON scheduler(date);
 var db *sql.DB
 
 func Init(dbFile string) error {
-	// Проверяем существование файла
 	_, err := os.Stat(dbFile)
 	var install bool
 	if os.IsNotExist(err) {
@@ -33,7 +31,6 @@ func Init(dbFile string) error {
 		return fmt.Errorf("ошибка при проверке файла базы данных: %w", err)
 	}
 
-	// Создаем директорию, если она не существует
 	dbDir := filepath.Dir(dbFile)
 	if dbDir == "" {
 		dbDir = "."
@@ -44,25 +41,16 @@ func Init(dbFile string) error {
 		}
 	}
 
-	// Открываем соединение с базой данных
 	var errOpen error
 	db, errOpen = sql.Open("sqlite", dbFile)
 	if errOpen != nil {
 		return fmt.Errorf("ошибка открытия базы данных: %w", errOpen)
 	}
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
 
-		}
-	}(db)
-
-	// Проверяем соединение
 	if err := db.Ping(); err != nil {
 		return fmt.Errorf("ошибка проверки соединения с базой данных: %w", err)
 	}
 
-	// Если база данных новая, создаем таблицы
 	if install {
 		tx, err := db.Begin()
 		if err != nil {
@@ -84,4 +72,17 @@ func Init(dbFile string) error {
 	}
 
 	return nil
+}
+
+func CloseDB() error {
+	err := db.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetDB() *sql.DB {
+	return db
 }

@@ -2,6 +2,7 @@ package tests
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
 	"io"
 	"net/http"
 	"os"
@@ -15,7 +16,14 @@ import (
 
 func getURL(path string) string {
 	port := Port
-	envPort := os.Getenv("TODO_PORT")
+
+	var envPort string
+
+	err := godotenv.Load("../.env")
+	if err == nil {
+		envPort = os.Getenv("TODO_PORT")
+	}
+
 	if len(envPort) > 0 {
 		if eport, err := strconv.ParseInt(envPort, 10, 32); err == nil {
 			port = int(eport)
