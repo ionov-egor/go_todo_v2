@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/ionov-egor/go_todo_v2/pkg/db"
 	"net/http"
 	"strconv"
 )
+
+import "github.com/ionov-egor/go_todo_v2/pkg/db"
 
 func TaskHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {

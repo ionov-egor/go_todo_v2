@@ -3,12 +3,14 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"github.com/go-chi/render"
-	"github.com/ionov-egor/go_todo_v2/pkg/db"
 	"net/http"
 	"strconv"
 	"strings"
 )
+
+import "github.com/go-chi/render"
+
+import "github.com/ionov-egor/go_todo_v2/pkg/db"
 
 const (
 	paramNow    = "now"

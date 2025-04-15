@@ -1,10 +1,11 @@
 package api
 
 import (
-	"github.com/ionov-egor/go_todo_v2/pkg/db"
 	"net/http"
 	"time"
 )
+
+import "github.com/ionov-egor/go_todo_v2/pkg/db"
 
 func TaskDoneHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := getParamId(r)

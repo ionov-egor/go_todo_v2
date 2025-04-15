@@ -3,10 +3,12 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/ionov-egor/go_todo_v2/pkg/config"
 	"net/http"
 )
+
+import "github.com/golang-jwt/jwt/v5"
+
+import "github.com/ionov-egor/go_todo_v2/pkg/config"
 
 type signInInf struct {
 	Password string `json:"password"`
@@ -44,5 +46,5 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		Token string `json:"token"`
 	}{signedToken})
 	return
-	
+
 }

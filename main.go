@@ -1,10 +1,13 @@
 package main
 
 import (
+	"github.com/joho/godotenv"
+)
+
+import (
 	"github.com/ionov-egor/go_todo_v2/pkg/config"
 	"github.com/ionov-egor/go_todo_v2/pkg/db"
 	"github.com/ionov-egor/go_todo_v2/pkg/server"
-	"github.com/joho/godotenv"
 )
 
 func init() {

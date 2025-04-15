@@ -3,10 +3,11 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	_ "modernc.org/sqlite"
 	"os"
 	"path/filepath"
 )
+
+import _ "modernc.org/sqlite"
 
 const schema = `
 CREATE TABLE scheduler (

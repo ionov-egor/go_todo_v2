@@ -1,10 +1,11 @@
 package api
 
 import (
-	"github.com/ionov-egor/go_todo_v2/pkg/db"
 	"net/http"
 	"time"
 )
+
+import "github.com/ionov-egor/go_todo_v2/pkg/db"
 
 func TasksHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -28,7 +29,7 @@ func getTasksHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		parsedDate, err := time.Parse("02.01.2006", search)
 		if err == nil {
-			tasks, err = db.TasksByDate(rowLimit, parsedDate.Format("20060102"))
+			tasks, err = db.TasksByDate(rowLimit, parsedDate.Format(dateLayout))
 		} else {
 			tasks, err = db.TasksBySearch(rowLimit, search)
 		}
