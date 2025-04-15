@@ -1,7 +1,9 @@
 package tests
 
 import (
-	"os"
+	"github.com/ionov-egor/go_todo_v2/pkg/config"
+	"github.com/joho/godotenv"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -24,10 +26,14 @@ func count(db *sqlx.DB) (int, error) {
 }
 
 func openDB(t *testing.T) *sqlx.DB {
+	err := godotenv.Load("../.env")
+	assert.NoError(t, err)
+
 	dbfile := DBFile
-	envFile := os.Getenv("TODO_DBFILE")
+	envFile := config.GetEnv("TODO_DBFILE", "scheduler.db")
+
 	if len(envFile) > 0 {
-		dbfile = envFile
+		dbfile = filepath.Join("../", envFile)
 	}
 	db, err := sqlx.Connect("sqlite", dbfile)
 	assert.NoError(t, err)
